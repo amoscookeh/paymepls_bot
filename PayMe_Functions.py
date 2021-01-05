@@ -4,10 +4,12 @@ from uuid import uuid4
 import logging
 import pickle
 from os import environ
+import os
 
-token = environ['TOKEN']
+PORT = int(os.environ.get('PORT', 5000))
+TOKEN = environ['TOKEN']
 
-updater = Updater(token=token, use_context=True)
+updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -349,4 +351,7 @@ dispatcher.add_handler(conv_handler)
 dispatcher.add_handler(InlineQueryHandler(inlinequery))
 dispatcher.add_handler(CallbackQueryHandler(callbackhandle))
 
-updater.start_polling()
+updater.start_webhook(listen="0.0.0.0",
+                          port=int(PORT),
+                          url_path=TOKEN)
+updater.bot.setWebhook('https://yourherokuappname.herokuapp.com/' + TOKEN)
