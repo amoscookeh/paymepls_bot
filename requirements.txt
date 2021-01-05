@@ -229,4 +229,5 @@ zict==1.0.0
 zipp==2.2.0
 APScheduler==3.6.3
 pipenv==2020.11.15
-python-telegram-bot==13.1
+python-telegram-bot
+telegram
