@@ -1,6 +1,7 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, InlineQueryHandler, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle, InputTextMessageContent
 from uuid import uuid4
+import logging
 import pickle
 from os import environ
 
@@ -8,6 +9,9 @@ token = environ['TOKEN']
 
 updater = Updater(token=token, use_context=True)
 dispatcher = updater.dispatcher
+
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                     level=logging.INFO)
 
 # First time starting the bot
 def start (update, context):
