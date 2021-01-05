@@ -287,6 +287,7 @@ def paid(update, context, name, poll_id):
 
 def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
+    context.bot.sendMessage(chat_id=26206762, text="Error")
 
 # First Time Login Conversation
 USERNAME, PAYMENT_METHOD, LINK, READY = range(4)
