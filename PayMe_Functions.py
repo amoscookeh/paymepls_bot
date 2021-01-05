@@ -3,14 +3,10 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResu
 from uuid import uuid4
 import logging
 import pickle
-from os import environ
 import os
 
 PORT = int(os.environ.get('PORT', 5000))
-TOKEN = environ['TOKEN']
-
-updater = Updater(token=TOKEN, use_context=True)
-dispatcher = updater.dispatcher
+TOKEN = os.environ['TOKEN']
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
@@ -346,12 +342,22 @@ conv_handler = ConversationHandler(
         fallbacks=[CommandHandler('cancel', cancel)]
     )
 
-dispatcher.add_handler(registration_handler)
-dispatcher.add_handler(conv_handler)
-dispatcher.add_handler(InlineQueryHandler(inlinequery))
-dispatcher.add_handler(CallbackQueryHandler(callbackhandle))
 
-updater.start_webhook(listen="0.0.0.0",
+def main():
+	updater = Updater(token=TOKEN, use_context=True)
+	dispatcher = updater.dispatcher
+
+	dispatcher.add_handler(registration_handler)
+	dispatcher.add_handler(conv_handler)
+	dispatcher.add_handler(InlineQueryHandler(inlinequery))
+	dispatcher.add_handler(CallbackQueryHandler(callbackhandle))
+
+	updater.start_webhook(listen="0.0.0.0",
                           port=int(PORT),
                           url_path=TOKEN)
-updater.bot.setWebhook('https://yourherokuappname.herokuapp.com/' + TOKEN)
+	updater.bot.setWebhook('https://yourherokuappname.herokuapp.com/' + TOKEN)
+
+	updater.idle()
+
+if __name__ == '__main__':
+    	main()
