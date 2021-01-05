@@ -304,14 +304,9 @@ registration_handler = ConversationHandler(
                 MessageHandler(
                     Filters.text & (~Filters.command), update_payment_links
                 )
-            ],
-            READY: [
-                CommandHandler(
-                    'ready', ready
-                )
             ]
         },
-        fallbacks=[CommandHandler('cancel_registration', cancel_reg)]
+        fallbacks=[CommandHandler('ready', ready)]
     )
 
 # New Payment Conversation
