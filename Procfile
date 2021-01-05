@@ -1,1 +1,1 @@
-web: python3 PayMe_Functions.py
+worker: python3 PayMe_Functions.py
