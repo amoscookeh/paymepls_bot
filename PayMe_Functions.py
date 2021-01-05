@@ -287,11 +287,11 @@ def paid(update, context, name, poll_id):
 
 def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
-    context.bot.sendMessage(chat_id=26206762, text="Error")
 
 # First Time Login Conversation
-USERNAME, PAYMENT_METHOD, LINK, READY = range(4)
+USERNAME, PAYMENT_METHOD, LINK = range(3)
 PUBLISH, DELETE = range(2)
+
 registration_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
@@ -315,7 +315,7 @@ registration_handler = ConversationHandler(
     )
 
 # New Payment Conversation
-TITLE, NAME, AMOUNT, DONE = range(4)
+TITLE, NAME, AMOUNT = range(3)
 conv_handler = ConversationHandler(
         entry_points=[CommandHandler('new', new_payment)],
         states={
@@ -333,13 +333,9 @@ conv_handler = ConversationHandler(
                 MessageHandler(
                     Filters.text & (~Filters.command), update_amount
                 )
-            ],
-            DONE: [
-                CommandHandler('done', done)
             ]
-
         },
-        fallbacks=[CommandHandler('cancel', cancel)]
+        fallbacks=[CommandHandler('cancel', cancel), CommandHandler('done', done)]
     )
 
 
