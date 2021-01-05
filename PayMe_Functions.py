@@ -3,11 +3,9 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Conve
 import logging
 from uuid import uuid4
 import pickle
-import configparser
+from os import environ
 
-parser = configparser.ConfigParser()
-parser.read('token.cfg')
-token = parser["Secret"]["Token"]
+TOKEN = environ['TOKEN']
 
 updater = Updater(token=token, use_context=True)
 dispatcher = updater.dispatcher
