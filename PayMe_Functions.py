@@ -5,7 +5,7 @@ from uuid import uuid4
 import pickle
 from os import environ
 
-TOKEN = environ['TOKEN']
+token = environ['TOKEN']
 
 updater = Updater(token=token, use_context=True)
 dispatcher = updater.dispatcher
