@@ -1,4 +1,4 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, InlineQueryHandler, CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, InlineQueryHandler, CallbackQueryHandler, DictPersistence
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle, InputTextMessageContent
 from uuid import uuid4
 import logging
@@ -8,9 +8,11 @@ import os
 PORT = int(os.environ.get('PORT', 5000))
 TOKEN = os.environ['TOKEN']
 
+# For local testing
+TOKEN = '1403230007:AAEBPB_UTwy8Z4BNzCnGBi87dJZHeFId6_w'
+
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # First time starting the bot
 def start (update, context):
@@ -259,32 +261,6 @@ def paid(update, context, name, poll_id):
     pickle.dump(data, pickle_out)
     pickle_out.close()
 
-# def turnOnSummary(context, poll_id):
-#     print(context.user_data)
-#     context.user_data["Requests"] = poll_id
-#     context.job_queue.run_repeating(sendSummary, interval=10, name=poll_id)
-#
-# def turnOffSummary(update, context, poll_id):
-#     jobs = context.job_queue.get_jobs_by_name(poll_id)
-#     for job in jobs:
-#         job.schedule_removal()
-#
-# def sendSummary(update, context):
-#     print(context.user_data)
-#     summary = generate_summary(context.chat_data["requests"])
-#     context.bot.sendMessage(chat_id=context.user_data["user_id"], text=summary)
-#
-# def generate_summary(poll_id):
-#     pickle_in = open("{}.pickle".format(poll_id), "rb")
-#     data = pickle.load(pickle_in)
-#
-#     title = data["Polls"][poll_id]["Title"]
-#     unpaid = len(data["Polls"][poll_id]["Unpaid"])
-#     paid = len(data["Polls"][poll_id]["Paid"])
-#
-#     summary = "Summary of payment: " + str(title) + "\n\nPAID: " + str(paid) + "\n\nUNPAID: " + str(unpaid)
-#     return summary
-
 def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
@@ -338,23 +314,26 @@ conv_handler = ConversationHandler(
         fallbacks=[CommandHandler('cancel', cancel), CommandHandler('done', done)]
     )
 
-
 def main():
-	updater = Updater(token=TOKEN, use_context=True)
-	dispatcher = updater.dispatcher
+    # Persistence testing
+    dict_persistence = DictPersistence()
 
-	dispatcher.add_handler(registration_handler)
-	dispatcher.add_handler(conv_handler)
-	dispatcher.add_handler(InlineQueryHandler(inlinequery))
-	dispatcher.add_handler(CallbackQueryHandler(callbackhandle))
-	dispatcher.add_error_handler(error)
+    updater = Updater(token=TOKEN, persistence=dict_persistence, use_context=True)
+    dispatcher = updater.dispatcher
 
-	updater.start_webhook(listen="0.0.0.0",
+    dispatcher.add_handler(registration_handler)
+    dispatcher.add_handler(conv_handler)
+    dispatcher.add_handler(InlineQueryHandler(inlinequery))
+    dispatcher.add_handler(CallbackQueryHandler(callbackhandle))
+
+    updater.start_webhook(listen="0.0.0.0",
                           port=int(PORT),
                           url_path=TOKEN)
-	updater.bot.setWebhook('https://paymeplsbot.herokuapp.com/' + TOKEN)
+    updater.bot.setWebhook('https://git.heroku.com/paymeplsbot.git/' + TOKEN)
 
-	updater.idle()
+    updater.start_polling()
+
+    updater.idle()
 
 if __name__ == '__main__':
-    	main()
+    main()
