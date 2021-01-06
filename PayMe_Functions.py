@@ -331,9 +331,5 @@ def main():
                           url_path=TOKEN)
     updater.bot.setWebhook('https://git.heroku.com/paymeplsbot.git/' + TOKEN)
 
-    updater.start_polling()
-
-    updater.idle()
-
 if __name__ == '__main__':
     main()
