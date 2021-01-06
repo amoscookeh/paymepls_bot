@@ -9,8 +9,6 @@ PORT = int(os.environ.get('PORT', 5000))
 TOKEN = os.environ['TOKEN']
 
 # For local testing
-TOKEN = '1403230007:AAEBPB_UTwy8Z4BNzCnGBi87dJZHeFId6_w'
-
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
 
@@ -32,7 +30,9 @@ def format_user_data (update, context):
     context.user_data["Poll Count"] = 0
     context.user_data["Name"] = ""
     context.user_data["Payment methods"] = {}
-    context.user_data["User ID"] = update.effective_chat.id
+    user = update.message.from_user
+    context.user_data["User ID"] = user['id']
+    context.user_data["Username"] = user['username']
 
 # Update username of user
 def update_username (update, context):
@@ -64,7 +64,7 @@ def update_payment_links (update, context):
 # When user is done with registration
 def ready (update, context):
     data = context.user_data
-    mesg = "Name: " + data["Name"] + "\n<b>Payment Method</b> : Information"
+    mesg = "Name: <b>" + data["Name"] + "</b>\n<b>Payment Method :</b> Information"
     for method in data["Payment methods"]:
         mesg += "\n<b>" + method + " : </b>" + data["Payment methods"][method]
     context.bot.send_message(chat_id=update.effective_chat.id,
@@ -82,8 +82,10 @@ def cancel_reg (update, context):
 
 # Create a new payment poll
 def new_payment (update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome back!" +
-                                                                    "\nEnter your title of payment:")
+    context.bot.send_message(chat_id=update.effective_chat.id,
+                             text="Welcome back!" + "\nEnter your <b>title</b> of payment:",
+                             parse_mode='html'
+                             )
 
     return TITLE
 
@@ -329,7 +331,9 @@ def main():
     updater.start_webhook(listen="0.0.0.0",
                           port=int(PORT),
                           url_path=TOKEN)
-    updater.bot.setWebhook('https://git.heroku.com/paymeplsbot.git/' + TOKEN)
+    updater.bot.setWebhook('https://paymeplsbot.herokuapp.com/' + TOKEN)
+
+    updater.idle()
 
 if __name__ == '__main__':
     main()
