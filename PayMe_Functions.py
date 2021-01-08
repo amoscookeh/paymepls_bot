@@ -39,7 +39,7 @@ def format_user_data (update, context):
     user_id = user['id']
     username = user['username']
     context.user_data["Polls"] = {}
-    context.user_data["Poll Count"] = 0
+    context.user_data["poll count"] = 0
     context.user_data["Name"] = ""
     context.user_data["Username"] = username
     post = {'_id':user_id, 'user_data': context.user_data}
@@ -120,7 +120,7 @@ def update_title (update, context):
     poll_id = "{}-{}".format(user_id, collection.find({'_id':user_id})[0]['user_data']['poll count'])
     collection.update(
         {'_id': update.message.from_user['id']},
-        {'$inc': {'Poll Count': 1}}
+        {'$inc': {'poll count': 1}}
     )
 
     polls = collection.find({'_id': update.message.from_user['id']})[0]['user_data']['polls']
@@ -247,7 +247,7 @@ def dltpoll (update, context):
     collection.find_one_and_replace({'_id': 'polls'}, polls)
     collection.update(
         {'_id': update.message.from_user['id']},
-        {'$inc': {'Poll Count': -1}}
+        {'$inc': {'poll count': -1}}
     )
     context.bot.send_message(chat_id=update.effective_chat.id, text="Payment deleted!")
 
