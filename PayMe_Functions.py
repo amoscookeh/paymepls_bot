@@ -121,14 +121,12 @@ def update_title (update, context):
     title = update.message.text
     user_id = update.message.from_user['id']
     poll_id = "{}-{}".format(user_id, collection.find({'_id':user_id})[0]['user_data']['poll count'])
-    collection.update(
-        {'_id': update.message.from_user['id']},
-        {'$inc': {'poll count': 1}}
-    )
 
-    polls = collection.find({'_id': update.message.from_user['id']})[0]['user_data']['polls']
-    polls[poll_id] = {"Title": title, "Unpaid": {}, "Paid": {}}
-    collection.find_one_and_replace({'_id': 'polls'}, polls)
+    new_poll = {poll_id: {"Title": title, "Unpaid": {}, "Paid": {}}}
+    collection.find_one_and_update(
+        {'_id': user_id},
+        {'$push':{'user_data.polls':new_poll}}
+    )
 
     context.bot.send_message(chat_id=update.effective_chat.id, text="New Payment: " + title)
     context.bot.send_message(chat_id=update.effective_chat.id, text="Nice! Now who owes you money?")
