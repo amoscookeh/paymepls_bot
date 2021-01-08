@@ -15,9 +15,6 @@ client = MongoClient("mongodb+srv://paymeplsbot:{}@paymeplsdata.ehp3q.mongodb.ne
 db = client['paymeplsdata']
 collection = db['paymeplsdata']
 
-# For local testing
-TOKEN = '1403230007:AAEBPB_UTwy8Z4BNzCnGBi87dJZHeFId6_w'
-
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
 
@@ -373,9 +370,7 @@ def main():
     updater.start_webhook(listen="0.0.0.0",
                           port=int(PORT),
                           url_path=TOKEN)
-    updater.bot.setWebhook('https://git.heroku.com/paymeplsbot.git/' + TOKEN)
-
-    # updater.start_polling()
+    updater.bot.setWebhook('https://paymeplsbot.herokuapp.com/' + TOKEN)
 
     updater.idle()
 
