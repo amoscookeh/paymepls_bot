@@ -52,7 +52,7 @@ def format_user_data (update, context):
 def update_username (update, context):
     name = update.message.text
     name = " ".join(w.capitalize() for w in name.split())
-    collection.find_one_and_update({'_id': update.message.from_user['id']}, {'$set':{'user_data.Name':name}})
+    collection.find_one_and_update({'_id': update.message.from_user['id']}, {'$set':{'user_data.Name':name, 'user_data.payment methods': {}}})
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text= "Nice to meet you " + name + "! \nNow, how would you like others to pay you? (Eg. Bank Transfer, PayNow, PayPal, etc.)")
     context.bot.send_message(chat_id=update.effective_chat.id,
@@ -91,8 +91,11 @@ def ready (update, context):
         return registration_handler.END
 
     mesg = "<b>Name:</b> " + data["Name"] + "\n<b>Payment Method</b> : Information"
-    for method in data["payment methods"]:
-        mesg += "\n<b>" + method + " : </b>" + data["payment methods"][method]
+    try:
+        for method in data["payment methods"]:
+            mesg += "\n<b>" + method + " : </b>" + data["payment methods"][method]
+    except:
+        mesg += "-NIL-"
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text="Thank you for providing me with this information! The information you have provided me with is as follows:\n\n" + mesg,
                              parse_mode='html')
