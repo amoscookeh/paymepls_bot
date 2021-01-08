@@ -383,9 +383,7 @@ conv_handler = ConversationHandler(
 )
 
 def main():
-    # Persistence testing
-    dict_persistence = DictPersistence()
-
+                             
     updater = Updater(token=TOKEN, persistence=dict_persistence, use_context=True)
     dispatcher = updater.dispatcher
 
