@@ -38,7 +38,7 @@ def format_user_data (update, context):
     user = update.message.from_user
     user_id = user['id']
     username = user['username']
-    context.user_data["polls"] = {}
+    context.user_data["polls"] = []
     context.user_data["poll count"] = 0
     context.user_data["Name"] = ""
     context.user_data["Username"] = username
@@ -123,9 +123,9 @@ def update_title (update, context):
     poll_id = "{}-{}".format(user_id, collection.find({'_id':user_id})[0]['user_data']['poll count'])
 
     new_poll = {poll_id: {"Title": title, "Unpaid": {}, "Paid": {}}}
-    collection.find_one_and_update(
+    collection.update(
         {'_id': user_id},
-        {'$push':{'user_data.polls':new_poll}}
+        {'$push': {'user_data.polls':new_poll}}
     )
 
     context.bot.send_message(chat_id=update.effective_chat.id, text="New Payment: " + title)
@@ -139,8 +139,8 @@ def update_name (update, context):
     name = update.message.text
     name = " ".join(w.capitalize() for w in name.split())
 
-    polls = collection.find({'_id': update.message.from_user['id']})[0]['user_data']['polls']
-    polls[list(polls)[-1]]["Unpaid"][name] = 0
+    polls = collection.find({'_id': user_id})[0]['user_data']['polls']
+    polls[-1]["Unpaid"][name] = 0
     collection.find_one_and_replace({'_id': 'polls'}, polls)
 
     context.bot.send_message(chat_id=update.effective_chat.id, text="How much does this person owe you?")
