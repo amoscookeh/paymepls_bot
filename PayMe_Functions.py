@@ -155,8 +155,7 @@ def update_amount (update, context):
     amount = update.message.text
     user_id = update.message.from_user['id']
     poll_id = "{}-{}".format(user_id, collection.find({'_id': user_id})[0]['user_data']['poll count'])
-    name = collection.find({'_id': user_id})[0]['user_data']['polls'][poll_id]['Unpaid'][-1]
-    print(name)
+    name = collection.find({'_id': user_id})[0]['user_data']['polls'][poll_id]['Unpaid'].keys()[-1]
 
     try:
         amount = float(amount)
@@ -168,7 +167,7 @@ def update_amount (update, context):
 
     collection.update(
         {'_id': user_id},
-        {'$set': {'user_data.polls.{}.Unpaid.{}'.format(poll_id, name): 0}}
+        {'$set': {'user_data.polls.{}.Unpaid.{}'.format(poll_id, name): amount}}
     )
 
     update.message.reply_text(
