@@ -289,6 +289,7 @@ def paid(update, context, name, poll_id):
     query = update.callback_query
     user_id = poll_id.split('-')[0]
 
+    print(user_id)
     user_data = collection.find({'_id': user_id})[0]['user_data']
     poll = user_data['polls'][poll_id]
 
