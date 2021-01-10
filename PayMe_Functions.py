@@ -266,7 +266,7 @@ def inlinequery(update, context):
 
 # Generate a list of inline queries
 def generate_inline_queries(update,context):
-    user_data = collection.find({'_id': update.message.from_user['id']})[0]['user_data']
+    user_data = collection.find({'_id': update.inline_query.from_user['id']})[0]['user_data']
     polls = user_data['polls']
 
     poll_ids = list(polls.keys())  # Empty dictionaries in Python return false when bool(dict)
