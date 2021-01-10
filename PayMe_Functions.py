@@ -38,7 +38,7 @@ def format_user_data (update, context):
     user = update.message.from_user
     user_id = user['id']
     username = user['username']
-    context.user_data["polls"] = {}
+    context.user_data["polls"] = []
     context.user_data["poll count"] = 0
     context.user_data["Name"] = ""
     context.user_data["Username"] = username
@@ -122,10 +122,10 @@ def update_title (update, context):
     user_id = update.message.from_user['id']
     poll_id = "{}-{}".format(user_id, collection.find({'_id':user_id})[0]['user_data']['poll count'])
 
-    new_poll = {"Title": title, "Unpaid": {}, "Paid": {}}
+    new_poll = {"poll_id": poll_id, "Title": title, "Unpaid": [], "Paid": []}
     collection.update(
         {'_id': user_id},
-        {'$set': {'user_data.polls.{}'.format(poll_id): new_poll}}
+        {'$set': {'user_data.polls': new_poll}}
     )
 
     context.bot.send_message(chat_id=update.effective_chat.id, text="New Payment: " + title)
@@ -136,12 +136,14 @@ def update_title (update, context):
 # Add name to payment poll
 def update_name (update, context):
     user_id = update.message.from_user['id']
+    poll_id = "{}-{}".format(user_id, collection.find({'_id': user_id})[0]['user_data']['poll count'])
+    
     name = update.message.text
     name = " ".join(w.capitalize() for w in name.split())
 
     collection.update(
         {'_id': user_id},
-        {'$set': {'user_data.polls.-1.{}'.format(name): 0}}
+        {'$set': {'user_data.polls.{}.Unpaid.{}'.format(poll_id, name): 0}}
     )
 
     context.bot.send_message(chat_id=update.effective_chat.id, text="How much does this person owe you?")
@@ -152,6 +154,10 @@ def update_name (update, context):
 def update_amount (update, context):
     amount = update.message.text
     user_id = update.message.from_user['id']
+    poll_id = "{}-{}".format(user_id, collection.find({'_id': user_id})[0]['user_data']['poll count'])
+    name = collection.find({'_id': user_id})[0]['user_data']['polls'][poll_id]['Unpaid'][-1]
+    print(name)
+
     try:
         amount = float(amount)
     except:
@@ -162,7 +168,7 @@ def update_amount (update, context):
 
     collection.update(
         {'_id': user_id},
-        {'$set': {'user_data.polls.-1.-1': amount}}
+        {'$set': {'user_data.polls.{}.Unpaid.{}'.format(poll_id, name): 0}}
     )
 
     update.message.reply_text(
