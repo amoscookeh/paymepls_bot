@@ -269,7 +269,7 @@ def generate_inline_queries(update,context):
     user_data = collection.find({'_id': update.message.from_user['id']})[0]['user_data']
     polls = user_data['polls']
 
-    poll_ids = list(polls)  # Empty dictionaries in Python return false when bool(dict)
+    poll_ids = list(polls.keys())  # Empty dictionaries in Python return false when bool(dict)
 
     inline_queries = []
     for poll_id in poll_ids:
