@@ -62,7 +62,7 @@ def update_username (update, context):
 # Update list of payment methods
 def update_payment_method (update, context):
     method = update.message.text
-    collection.find_one_and_update({'_id': update.message.from_user['id']}, {'$set': {'user_data.payment methods': {method:""}}})
+    collection.find_one_and_update({'_id': update.message.from_user['id']}, {'$set': {'user_data.payment methods.{}'.format(method): {}}})
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text="Nice, now provide me some information that's linked to {}! (Eg. Link, Acc. Number, etc.)".format(method))
     return LINK
@@ -139,9 +139,10 @@ def update_name (update, context):
     name = update.message.text
     name = " ".join(w.capitalize() for w in name.split())
 
-    polls = collection.find({'_id': user_id})[0]['user_data']['polls']
-    polls[list(polls)[-1]]["Unpaid"][name] = 0
-    collection.find_one_and_replace({'_id': 'polls'}, polls)
+    collection.update(
+        {'_id': user_id},
+        {'$set': {'user_data.polls.-1.{}'.format(name): 0}}
+    )
 
     context.bot.send_message(chat_id=update.effective_chat.id, text="How much does this person owe you?")
 
@@ -150,6 +151,7 @@ def update_name (update, context):
 # Ass amount of money previous added name owes
 def update_amount (update, context):
     amount = update.message.text
+    user_id = update.message.from_user['id']
     try:
         amount = float(amount)
     except:
@@ -158,10 +160,10 @@ def update_amount (update, context):
         )
         return AMOUNT
 
-    polls = collection.find({'_id': update.message.from_user['id']})[0]['user_data']['polls']
-    names = polls[list(polls)[-1]]["Unpaid"]
-    polls["Polls"][list(polls)[-1]]["Unpaid"][list(names)[-1]] = amount
-    collection.find_one_and_replace({'_id': 'polls'}, polls)
+    collection.update(
+        {'_id': user_id},
+        {'$set': {'user_data.polls.-1.-1': amount}}
+    )
 
     update.message.reply_text(
         "Well done! Continuing adding names or press /done if you're done!"
