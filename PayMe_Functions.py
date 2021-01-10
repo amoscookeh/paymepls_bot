@@ -38,7 +38,7 @@ def format_user_data (update, context):
     user = update.message.from_user
     user_id = user['id']
     username = user['username']
-    context.user_data["polls"] = []
+    context.user_data["polls"] = {}
     context.user_data["poll count"] = 0
     context.user_data["Name"] = ""
     context.user_data["Username"] = username
@@ -122,7 +122,7 @@ def update_title (update, context):
     user_id = update.message.from_user['id']
     poll_id = "{}-{}".format(user_id, collection.find({'_id':user_id})[0]['user_data']['poll count'])
 
-    new_poll = {"Title": title, "Unpaid": [], "Paid": []}
+    new_poll = {"Title": title, "Unpaid": {}, "Paid": {}}
     collection.update(
         {'_id': user_id},
         {'$set': {'user_data.polls.{}'.format(poll_id): new_poll}}
