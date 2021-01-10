@@ -122,10 +122,10 @@ def update_title (update, context):
     user_id = update.message.from_user['id']
     poll_id = "{}-{}".format(user_id, collection.find({'_id':user_id})[0]['user_data']['poll count'])
 
-    new_poll = {"poll_id": poll_id, "Title": title, "Unpaid": [], "Paid": []}
+    new_poll = {"Title": title, "Unpaid": [], "Paid": []}
     collection.update(
         {'_id': user_id},
-        {'$set': {'user_data.polls': new_poll}}
+        {'$set': {'user_data.polls.{}'.format(poll_id): new_poll}}
     )
 
     context.bot.send_message(chat_id=update.effective_chat.id, text="New Payment: " + title)
@@ -137,7 +137,7 @@ def update_title (update, context):
 def update_name (update, context):
     user_id = update.message.from_user['id']
     poll_id = "{}-{}".format(user_id, collection.find({'_id': user_id})[0]['user_data']['poll count'])
-    
+
     name = update.message.text
     name = " ".join(w.capitalize() for w in name.split())
 
