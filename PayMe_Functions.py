@@ -287,17 +287,21 @@ def generate_inline_queries(update,context):
 
 def paid(update, context, name, poll_id):
     query = update.callback_query
+    user_id = poll_id.split('-')[0]
 
-    user_data = collection.find({'_id': update.message.from_user['id']})[0]['user_data']
-    polls = user_data['polls']
+    user_data = collection.find({'_id': user_id})[0]['user_data']
+    poll = user_data['polls'][poll_id]
 
-    amount = polls[poll_id]["Unpaid"][name]
-    del polls[poll_id]["Unpaid"][name]
-    polls[poll_id]["Paid"][name] = amount
-    collection.find_one_and_replace({'_id': 'polls'}, polls)
+    amount = poll["Unpaid"][name]
+    del(poll["Unpaid"][name])
+    poll["Paid"][name] = amount
+    collection.find_one_and_update(
+        {'_id': user_id},
+        {'$set': {'user_data.polls.{}'.format(poll_id): poll}}
+    )
 
     inline_keyboards = []
-    unpaid = polls[poll_id]["Unpaid"]
+    unpaid = poll["Unpaid"]
     for name in unpaid:
         inline_keyboards.append(InlineKeyboardButton(name, callback_data="/paid " + name + " " + poll_id))
 
