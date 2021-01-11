@@ -263,7 +263,7 @@ def dltpoll (update, context, poll_id):
     polls = collection.find({'_id': user_id})[0]['user_data']['polls']
     poll_to_dlt = list(polls.keys())[-1]
     polls.pop(poll_to_dlt)
-    collection.find_one_and_replace({'_id': user_id}, {'user_data.poll': polls})
+    collection.find_one_and_replace({'_id': user_id}, {'user_data.polls': polls})
     collection.update(
         {'_id': user_id},
         {'$inc': {'poll count': -1}}
