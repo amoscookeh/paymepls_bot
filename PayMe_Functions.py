@@ -296,7 +296,7 @@ def paid(update, context, name, poll_id):
     del(poll["Unpaid"][name])
     poll["Paid"][name] = amount
     collection.find_one_and_update(
-        {'_id': user_id},
+        {'_id': int(user_id)},
         {'$set': {'user_data.polls.{}'.format(poll_id): poll}}
     )
 
@@ -304,9 +304,9 @@ def paid(update, context, name, poll_id):
     unpaid = poll["Unpaid"]
     for name in unpaid:
         inline_keyboards.append(InlineKeyboardButton(name, callback_data="/paid " + name + " " + poll_id))
-    
+
     new_user_data = collection.find({'_id': int(user_id)})[0]['user_data']
-    
+
     # Edit message into poll
     query.edit_message_text(
         text=generate_poll(new_user_data, poll_id),
