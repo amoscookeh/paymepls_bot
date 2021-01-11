@@ -304,10 +304,12 @@ def paid(update, context, name, poll_id):
     unpaid = poll["Unpaid"]
     for name in unpaid:
         inline_keyboards.append(InlineKeyboardButton(name, callback_data="/paid " + name + " " + poll_id))
-
+    
+    new_user_data = collection.find({'_id': int(user_id)})[0]['user_data']
+    
     # Edit message into poll
     query.edit_message_text(
-        text=generate_poll(user_data, poll_id),
+        text=generate_poll(new_user_data, poll_id),
         reply_markup=InlineKeyboardMarkup([inline_keyboards]),
         parse_mode='HTML'
     )
