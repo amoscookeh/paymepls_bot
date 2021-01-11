@@ -181,6 +181,11 @@ def done (update, context):
     user_data = collection.find({'_id': update.message.from_user['id']})[0]['user_data']
     polls = user_data['polls']
 
+    collection.update(
+        {'_id': update.message.from_user['id']},
+        {'$inc': {'user_data.poll count': 1}}
+    )
+
     poll_id = list(polls)[-1]
     poll = generate_poll(user_data, poll_id)
 
@@ -252,7 +257,7 @@ def callbackhandle(update, context):
 def dltpoll (update, context):
     polls = collection.find({'_id': update.message.from_user['id']})[0]['user_data']['polls']
     del polls[list(polls)[-1]]
-    collection.find_one_and_replace({'_id': 'polls'}, polls)
+    collection.find_one_and_replace({'_id': update.message.from_user}, {'user_data.poll': polls})
     collection.update(
         {'_id': update.message.from_user['id']},
         {'$inc': {'poll count': -1}}
