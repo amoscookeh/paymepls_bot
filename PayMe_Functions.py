@@ -248,6 +248,10 @@ def callbackhandle(update, context):
     command = data[0]
     if command == "/dltpoll":
         query.answer("Payment Deleted")
+        context.bot.delete_message(
+            chat_id=update.effective_chat.id,
+            message_id=update.message[-1].message_id
+        )
         dltpoll(update, context, data[1])
     elif command == "/paid":
         query.answer("Payment confirmed")
