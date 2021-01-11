@@ -257,7 +257,8 @@ def callbackhandle(update, context):
 def dltpoll (update, context, poll_id):
     user_id = int(poll_id.split(' ')[0])
     polls = collection.find({'_id': user_id})[0]['user_data']['polls']
-    del polls[-1]
+    poll_to_dlt = list(polls.keys())[-1]
+    polls.pop(poll_to_dlt)
     collection.find_one_and_replace({'_id': user_id}, {'user_data.poll': polls})
     collection.update(
         {'_id': user_id},
