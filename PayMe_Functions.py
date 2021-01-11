@@ -192,7 +192,7 @@ def done (update, context):
     inline_keyboard = [
         [
             InlineKeyboardButton("Publish Payment", switch_inline_query=""),
-            InlineKeyboardButton("Delete Payment", callback_data="/dltpoll")
+            InlineKeyboardButton("Delete Payment", callback_data="/dltpoll " + poll_id)
             # InlineKeyboardButton("Turn On Summary", callback_data="/turnOnSummary " + poll_id)
         ]
     ]
@@ -248,18 +248,19 @@ def callbackhandle(update, context):
     command = data[0]
     if command == "/dltpoll":
         query.answer("Payment Deleted")
-        dltpoll(update, context)
+        dltpoll(update, context, data[1])
     elif command == "/paid":
         query.answer("Payment confirmed")
         paid(update, context, data[1], data[2])
 
 # Delete poll from user data
-def dltpoll (update, context):
-    polls = collection.find({'_id': update.message.from_user['id']})[0]['user_data']['polls']
+def dltpoll (update, context, poll_id):
+    user_id = int(poll_id.split(' ')[0])
+    polls = collection.find({'_id': user_id})[0]['user_data']['polls']
     del polls[list(polls)[-1]]
-    collection.find_one_and_replace({'_id': update.message.from_user}, {'user_data.poll': polls})
+    collection.find_one_and_replace({'_id': user_id}, {'user_data.poll': polls})
     collection.update(
-        {'_id': update.message.from_user['id']},
+        {'_id': user_id},
         {'$inc': {'poll count': -1}}
     )
     context.bot.send_message(chat_id=update.effective_chat.id, text="Payment deleted!")
