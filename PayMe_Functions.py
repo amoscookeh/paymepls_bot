@@ -267,7 +267,7 @@ def dltpoll (update, context, poll_id):
     message = polls[poll_to_dlt]['Message']
     context.bot.delete_message(
         chat_id=update.effective_chat.id,
-        message_id=message.message_id
+        message_id=message
     )
 
     # Delete Data
