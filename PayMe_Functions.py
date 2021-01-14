@@ -304,7 +304,8 @@ def generate_inline_queries(update,context):
             inline_keyboards.append(InlineKeyboardButton(name, callback_data="/paid|" + name + "|" + poll_id))
         query = InlineQueryResultArticle(id=uuid4(), title=title,
                                          input_message_content=InputTextMessageContent(generate_poll(user_data, poll_id), parse_mode='HTML'),
-                                         reply_markup=InlineKeyboardMarkup([inline_keyboards])
+                                         reply_markup=InlineKeyboardMarkup([inline_keyboards]),
+                                         thumb_url='https://raw.githubusercontent.com/amoscookeh/paymepls_bot/main/Paymeplslogo.jpg'
                                          )
         inline_queries.append(query)
 
