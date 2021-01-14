@@ -203,7 +203,7 @@ def done (update, context):
 
     collection.update(
         {'_id': update.message.from_user['id']},
-        {'$set': {'user_data.polls.{}.Message'.format(poll_id): message}}
+        {'$set': {'user_data.polls.{}.Message'.format(poll_id): message.message_id}}
     )
 
     return ConversationHandler.END
