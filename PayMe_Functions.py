@@ -122,7 +122,7 @@ def update_title (update, context):
     user_id = update.message.from_user['id']
     poll_id = "{}-{}".format(user_id, collection.find({'_id':user_id})[0]['user_data']['poll count'])
 
-    new_poll = {"Title": title, "Unpaid": {}, "Paid": {}}
+    new_poll = {"Title": title, "Unpaid": {}, "Paid": {}, "Message": 0}
     collection.update(
         {'_id': user_id},
         {'$set': {'user_data.polls.{}'.format(poll_id): new_poll}}
@@ -193,13 +193,17 @@ def done (update, context):
         [
             InlineKeyboardButton("Publish Payment", switch_inline_query=""),
             InlineKeyboardButton("Delete Payment", callback_data="/dltpoll " + poll_id)
-            # InlineKeyboardButton("Turn On Summary", callback_data="/turnOnSummary " + poll_id)
         ]
     ]
 
-    update.message.reply_html(
+    message = update.message.reply_html(
         text=poll,
         reply_markup=InlineKeyboardMarkup(inline_keyboard)
+    )
+
+    collection.update(
+        {'_id': update.message.from_user['id']},
+        {'$set': {'user_data.polls.{}.Message'.format(poll_id): message}}
     )
 
     return ConversationHandler.END
@@ -248,10 +252,6 @@ def callbackhandle(update, context):
     command = data[0]
     if command == "/dltpoll":
         query.answer("Payment Deleted")
-        context.bot.delete_message(
-            chat_id=update.effective_chat.id,
-            message_id=update.message[-1].message_id
-        )
         dltpoll(update, context, data[1])
     elif command == "/paid":
         query.answer("Payment confirmed")
@@ -262,12 +262,22 @@ def dltpoll (update, context, poll_id):
     user_id = int(poll_id.split('-')[0])
     polls = collection.find({'_id': user_id})[0]['user_data']['polls']
     poll_to_dlt = list(polls.keys())[-1]
+
+    # Delete message
+    message = poll_to_dlt['Message']
+    context.bot.delete_message(
+        chat_id=update.effective_chat.id,
+        message_id=message.message_id
+    )
+
+    # Delete Data
     polls.pop(poll_to_dlt)
     collection.find_one_and_replace({'_id': user_id}, {'user_data.polls': polls})
     collection.update(
         {'_id': user_id},
         {'$inc': {'poll count': -1}}
     )
+
     context.bot.send_message(chat_id=update.effective_chat.id, text="Payment deleted!")
 
 # Options to post existing polls
