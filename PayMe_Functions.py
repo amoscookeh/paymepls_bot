@@ -279,7 +279,7 @@ def dltpoll (update, context, poll_id):
     )
     collection.update(
         {'_id': user_id},
-        {'$inc': {'poll count': -1}}
+        {'$inc': {'user_data.poll count': -1}}
     )
 
     context.bot.send_message(chat_id=update.effective_chat.id, text="Payment deleted!")
