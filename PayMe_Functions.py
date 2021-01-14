@@ -272,7 +272,10 @@ def dltpoll (update, context, poll_id):
 
     # Delete Data
     polls.pop(poll_to_dlt)
-    collection.find_one_and_replace({'_id': user_id}, {'user_data.polls': polls})
+    collection.update(
+        {'_id': user_id},
+        {'$set': {'user_data.polls': polls}}
+    )
     collection.update(
         {'_id': user_id},
         {'$inc': {'poll count': -1}}
