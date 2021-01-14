@@ -259,7 +259,7 @@ def callbackhandle(update, context):
 
 # Delete poll from user data
 def dltpoll (update, context, poll_id):
-    user_id = int(poll_id.split('-')[0])
+    user_id = int(poll_id.split('|')[0])
     polls = collection.find({'_id': user_id})[0]['user_data']['polls']
     poll_to_dlt = list(polls.keys())[-1]
 
@@ -301,7 +301,7 @@ def generate_inline_queries(update,context):
         inline_keyboards = []
         title = polls[poll_id]["Title"]
         for name in polls[poll_id]["Unpaid"]:
-            inline_keyboards.append(InlineKeyboardButton(name, callback_data="/paid " + name + " " + poll_id))
+            inline_keyboards.append(InlineKeyboardButton(name, callback_data="/paid|" + name + "|" + poll_id))
         query = InlineQueryResultArticle(id=uuid4(), title=title,
                                          input_message_content=InputTextMessageContent(generate_poll(user_data, poll_id), parse_mode='HTML'),
                                          reply_markup=InlineKeyboardMarkup([inline_keyboards])
