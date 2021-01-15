@@ -22,6 +22,15 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 def start (update, context):
     format_user_data(update, context)
     context.bot.send_message(chat_id=update.effective_chat.id,
+                             text="Welcome to PayMePls Bot [Beta Test Version]! U+2728",
+                             parse_mode='HTML')
+    context.bot.send_message(chat_id=update.effective_chat.id,
+                             text="Before we begin, let me get to know you!\n\nWhat is your name?")
+    return USERNAME
+
+def help (update, context):
+    format_user_data(update, context)
+    context.bot.send_message(chat_id=update.effective_chat.id,
                              text="<b>Welcome to PayMePls Bot [Beta Test Version] U+2728\n\nThere are 2 simple steps "
                                   "to using me! </b>\n\n<b>Step 1: Registration &#x1f468; &#x1f3fb; &#x200d; &#x1f4bb;</b>"
                                   "Use /start to begin a one time registration to share necessary information with me,"
@@ -31,9 +40,6 @@ def start (update, context):
                                   "can be published into groups!\n\n<b>Disclaimer: I may take 1-2 minutes to respond to"
                                   " your first message! Please be patient, I need time to awake from my sleep &#xe13c;</b>",
                              parse_mode='HTML')
-    context.bot.send_message(chat_id=update.effective_chat.id,
-                             text="Before we begin, let me get to know you!\n\nWhat is your name?")
-    return USERNAME
 
 def get_user_data (update):
     user_id = update.message.from_user['id']
@@ -411,6 +417,7 @@ def main():
     dispatcher.add_handler(conv_handler)
     dispatcher.add_handler(InlineQueryHandler(inlinequery))
     dispatcher.add_handler(CallbackQueryHandler(callbackhandle))
+    dispatcher.add_handler(CommandHandler('help', help))
 
     updater.start_webhook(listen="0.0.0.0",
                           port=int(PORT),
