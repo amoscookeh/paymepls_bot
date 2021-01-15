@@ -22,7 +22,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 def start (update, context):
     format_user_data(update, context)
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text="Welcome to PayMePls Bot [Beta Test Version]! &#xe32e;",
+                             text="Welcome to PayMePls Bot [Beta Test Version]! U+2728",
                              parse_mode='HTML')
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text="Before we begin, let me get to know you!\n\nWhat is your name?\n\nUse /cancelreg to"
@@ -131,8 +131,18 @@ def new_payment (update, context):
         context.bot.send_message(chat_id=update.effective_chat.id, text="You have not registered!" +
                                                                         "\nUse /start to register")
         return ConversationHandler.END
+    
+    user_id = update.message.from_user['id']
+    poll_id = "{}-{}".format(user_id, collection.find({'_id': user_id})[0]['user_data']['poll count'])
+
+    collection.update(
+        {'_id': user_id},
+        {'$set': {'user_data.polls.{}'.format(poll_id): {}}}
+    )
+    
     context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome back!" +
-                                                                    "\nEnter your title of payment:")
+                                                                    "\nEnter your title of payment:"
+                                                                    "\n\nUse /cancel to cancel payment creation")
     return TITLE
 
 # Update title of payment poll
@@ -148,7 +158,8 @@ def update_title (update, context):
     )
 
     context.bot.send_message(chat_id=update.effective_chat.id, text="New Payment: " + title)
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Nice! Now who owes you money?")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Nice! Now who owes you money?"
+                                                                    "\n\nUse /cancel to cancel payment creation")
 
     return NAME
 
@@ -165,7 +176,8 @@ def update_name (update, context):
         {'$set': {'user_data.polls.{}.Unpaid.{}'.format(poll_id, name): 0}}
     )
 
-    context.bot.send_message(chat_id=update.effective_chat.id, text="How much does this person owe you?")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="How much does this person owe you?"
+                                                                    "\n\nUse /cancel to cancel payment creation")
 
     return AMOUNT
 
@@ -180,7 +192,7 @@ def update_amount (update, context):
         amount = float(amount)
     except:
         update.message.reply_text(
-            "Sorry, that was an invalid amount, please try again!"
+            "Sorry, that was an invalid amount, please try again!\n\nUse /cancel to cancel payment creation"
         )
         return AMOUNT
 
@@ -190,7 +202,7 @@ def update_amount (update, context):
     )
 
     update.message.reply_text(
-        "Well done! Continuing adding names or press /done if you're done!"
+        "Well done! Continuing adding names or press /done if you're done!\n\nUse /cancel to cancel payment creation"
     )
 
     return NAME
@@ -231,7 +243,7 @@ def cancel (update, context):
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text="Payment erased. Use /new to create a new payment poll!")
     polls = collection.find({'_id': update.message.from_user['id']})[0]['user_data']['polls']
-    polls.pop(list(polls)[-1])
+    polls.pop(list(polls.keys())[-1])
     collection.find_one_and_replace({'_id': 'polls'}, polls)
     return ConversationHandler.END
 
