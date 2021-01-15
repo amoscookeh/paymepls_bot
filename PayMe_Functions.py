@@ -319,7 +319,7 @@ def paid(update, context, name, poll_id):
     poll = user_data['polls'][poll_id]
 
     amount = poll["Unpaid"][name]
-    del(poll["Unpaid"][name])
+    poll["Unpaid"].pop(name)
     poll["Paid"][name] = amount
     collection.find_one_and_update(
         {'_id': int(user_id)},
