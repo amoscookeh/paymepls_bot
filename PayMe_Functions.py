@@ -131,7 +131,7 @@ def new_payment (update, context):
         context.bot.send_message(chat_id=update.effective_chat.id, text="You have not registered!" +
                                                                         "\nUse /start to register")
         return ConversationHandler.END
-    
+
     user_id = update.message.from_user['id']
     poll_id = "{}-{}".format(user_id, collection.find({'_id': user_id})[0]['user_data']['poll count'])
 
@@ -139,7 +139,7 @@ def new_payment (update, context):
         {'_id': user_id},
         {'$set': {'user_data.polls.{}'.format(poll_id): {}}}
     )
-    
+
     context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome back!" +
                                                                     "\nEnter your title of payment:"
                                                                     "\n\nUse /cancel to cancel payment creation")
@@ -240,11 +240,16 @@ def done (update, context):
     return ConversationHandler.END
 
 def cancel (update, context):
+    user_id = update.message.from_user['id']
+    user_data = collection.find({'_id': user_id})[0]['user_data']
+    poll_id = list(user_data['polls'].keys())[-1]
+    user_data['polls'].pop(poll_id)
+    collection.find_one_and_update(
+        {'_id': user_id}, 
+        {'$set', {'user_data': user_data}}
+    )
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text="Payment erased. Use /new to create a new payment poll!")
-    polls = collection.find({'_id': update.message.from_user['id']})[0]['user_data']['polls']
-    polls.pop(list(polls.keys())[-1])
-    collection.find_one_and_replace({'_id': 'polls'}, polls)
     return ConversationHandler.END
 
 # Poll text generator
