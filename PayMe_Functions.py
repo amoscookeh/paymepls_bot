@@ -192,7 +192,7 @@ def done (update, context):
     inline_keyboard = [
         [
             InlineKeyboardButton("Publish Payment", switch_inline_query=""),
-            InlineKeyboardButton("Delete Payment", callback_data="/dltpoll " + poll_id)
+            InlineKeyboardButton("Delete Payment", callback_data="/dltpoll|" + poll_id)
         ]
     ]
 
