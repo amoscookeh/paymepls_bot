@@ -22,8 +22,14 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 def start (update, context):
     format_user_data(update, context)
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text="Welcome to Pay Me Bot &#128176;"
-                             + "\n My purpose is to aid you in the collection of money from groups!",
+                             text="<b>Welcome to PayMePls Bot [Beta Test Version] U+2728\n\nThere are 2 simple steps "
+                                  "to using me! </b>\n\n<b>Step 1: Registration &#x1f468; &#x1f3fb; &#x200d; &#x1f4bb;</b>"
+                                  "Use /start to begin a one time registration to share necessary information with me,"
+                                  "that will then be shared with your payments! (Name, Payment methods, """
+                                  "Phone number/Payment Links, etc.)\n\n<b>Step 2: Creating a Payment &#xe12f;</b>"
+                                  "After registration, use /new to create a new interactive payment that"
+                                  "can be published into groups!\n\n<b>Disclaimer: I may take 1-2 minutes to respond to"
+                                  " your first message! Please be patient, I need time to awake from my sleep &#xe13c;</b>",
                              parse_mode='HTML')
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text="Before we begin, let me get to know you!\n\nWhat is your name?")
