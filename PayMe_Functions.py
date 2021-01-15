@@ -248,7 +248,7 @@ def generate_poll (user_data, poll_id):
 
 def callbackhandle(update, context):
     query = update.callback_query
-    data = query['data'].split()
+    data = query['data'].split('|')
     command = data[0]
     if command == "/dltpoll":
         query.answer("Payment Deleted")
@@ -259,7 +259,7 @@ def callbackhandle(update, context):
 
 # Delete poll from user data
 def dltpoll (update, context, poll_id):
-    user_id = int(poll_id.split('|')[0])
+    user_id = int(poll_id.split('-')[0])
     polls = collection.find({'_id': user_id})[0]['user_data']['polls']
     poll_to_dlt = list(polls.keys())[-1]
 
