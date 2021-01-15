@@ -245,8 +245,8 @@ def cancel (update, context):
     poll_id = list(user_data['polls'].keys())[-1]
     user_data['polls'].pop(poll_id)
     collection.find_one_and_update(
-        {'_id': user_id}, 
-        {'$set', {'user_data': user_data}}
+        {'_id': user_id},
+        {'$set': {'user_data': user_data}}
     )
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text="Payment erased. Use /new to create a new payment poll!")
