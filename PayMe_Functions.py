@@ -22,10 +22,11 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 def start (update, context):
     format_user_data(update, context)
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text="Welcome to PayMePls Bot [Beta Test Version]! U+2728",
+                             text="Welcome to PayMePls Bot [Beta Test Version]! &#xe32e;",
                              parse_mode='HTML')
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text="Before we begin, let me get to know you!\n\nWhat is your name?")
+                             text="Before we begin, let me get to know you!\n\nWhat is your name?\n\nUse /cancelreg to"
+                                  " cancel registration")
     return USERNAME
 
 def help (update, context):
@@ -54,6 +55,7 @@ def format_user_data (update, context):
     context.user_data["poll count"] = 0
     context.user_data["Name"] = ""
     context.user_data["Username"] = username
+    context.user_data["payment methods"] = {}
     post = {'_id':user_id, 'user_data': context.user_data}
     try:
         collection.insert_one(post)
@@ -64,11 +66,11 @@ def format_user_data (update, context):
 def update_username (update, context):
     name = update.message.text
     name = " ".join(w.capitalize() for w in name.split())
-    collection.find_one_and_update({'_id': update.message.from_user['id']}, {'$set':{'user_data.Name':name, 'user_data.payment methods': {}}})
+    collection.find_one_and_update({'_id': update.message.from_user['id']}, {'$set':{'user_data.Name':name}})
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text= "Nice to meet you " + name + "! \nNow, how would you like others to pay you? (Eg. Bank Transfer, PayNow, PayPal, etc.)")
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text= "or press /ready if that's all!")
+                             text= "or press /ready if that's all!\n\nUse /cancelreg to cancel registration")
     return PAYMENT_METHOD
 
 # Update list of payment methods
@@ -76,7 +78,7 @@ def update_payment_method (update, context):
     method = update.message.text
     collection.find_one_and_update({'_id': update.message.from_user['id']}, {'$set': {'user_data.payment methods.{}'.format(method): {}}})
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text="Nice, now provide me some information that's linked to {}! (Eg. Link, Acc. Number, etc.)".format(method))
+                             text="Nice, now provide me some information that's linked to {}! (Eg. Link, Acc. Number, etc.)\n\nUse /cancelreg to cancel registration".format(method))
     return LINK
 
 # Update list of payment method information
@@ -89,7 +91,8 @@ def update_payment_links (update, context):
         {'$set': {'user_data.payment methods.{}'.format(method): info}}
     )
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text="Alright, now provide me with another payment method (Eg. Bank Transfer, PayNow, PayLah!, etc.) \n\nor press /ready if that's all!")
+                             text="Alright, now provide me with another payment method (Eg. Bank Transfer, PayNow, PayPal, etc.) "
+                                  "\n\nor press /ready if that's all!\n\nUse /cancelreg to cancel registration")
     return PAYMENT_METHOD
 
 # When user is done with registration
@@ -123,9 +126,13 @@ def cancel_reg (update, context):
 
 # Create a new payment poll
 def new_payment (update, context):
+    name = collection.find({'_id': update.message.from_user['id']})[0]['user_data']['Name']
+    if name == "":
+        context.bot.send_message(chat_id=update.effective_chat.id, text="You have not registered!" +
+                                                                        "\nUse /start to register")
+        return ConversationHandler.END
     context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome back!" +
                                                                     "\nEnter your title of payment:")
-
     return TITLE
 
 # Update title of payment poll
@@ -223,10 +230,10 @@ def done (update, context):
 def cancel (update, context):
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text="Payment erased. Use /new to create a new payment poll!")
-    polls = collection.find({'_id': update.message.from_user['id']})['user_data']['polls']
-    del polls[list(polls)[-1]]
+    polls = collection.find({'_id': update.message.from_user['id']})[0]['user_data']['polls']
+    polls.pop(list(polls)[-1])
     collection.find_one_and_replace({'_id': 'polls'}, polls)
-    return conv_handler.END
+    return ConversationHandler.END
 
 # Poll text generator
 def generate_poll (user_data, poll_id):
@@ -239,6 +246,7 @@ def generate_poll (user_data, poll_id):
 
     if len(unpaid)==0:
         poll += "\n<b>All Payments have been made! Thank you!</b>"
+        dlt(poll_id)
         return poll
 
     poll += "\n<b>UNPAID:\n</b>"
@@ -294,6 +302,17 @@ def dltpoll (update, context, poll_id):
     )
 
     context.bot.send_message(chat_id=update.effective_chat.id, text="Payment deleted!")
+
+def dlt (poll_id):
+    user_id = int(poll_id.split('-')[0])
+    polls = collection.find({'_id': user_id})[0]['user_data']['polls']
+    poll_to_dlt = poll_id
+
+    polls.pop(poll_to_dlt)
+    collection.update(
+        {'_id': user_id},
+        {'$set': {'user_data.polls': polls}}
+    )
 
 # Options to post existing polls
 def inlinequery(update, context):
@@ -377,7 +396,7 @@ registration_handler = ConversationHandler(
             )
         ]
     },
-    fallbacks=[CommandHandler('ready', ready)],
+    fallbacks=[CommandHandler('ready', ready), CommandHandler('cancelreg', cancel_reg)],
     conversation_timeout=300
 )
 
