@@ -261,7 +261,7 @@ def callbackhandle(update, context):
 def dltpoll (update, context, poll_id):
     user_id = int(poll_id.split('-')[0])
     polls = collection.find({'_id': user_id})[0]['user_data']['polls']
-    poll_to_dlt = int(poll_id)
+    poll_to_dlt = poll_id
 
     # Delete message
     message = polls[poll_to_dlt]['Message']
