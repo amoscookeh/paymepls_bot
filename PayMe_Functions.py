@@ -198,7 +198,7 @@ def done (update, context):
 
     message = update.message.reply_html(
         text=poll,
-        reply_markup=InlineKeyboardMarkup(inline_keyboard)
+        reply_markup=InlineKeyboardMarkup(inline_keyboard),
     )
 
     collection.update(
@@ -261,7 +261,7 @@ def callbackhandle(update, context):
 def dltpoll (update, context, poll_id):
     user_id = int(poll_id.split('-')[0])
     polls = collection.find({'_id': user_id})[0]['user_data']['polls']
-    poll_to_dlt = list(polls.keys())[-1]
+    poll_to_dlt = int(poll_id)
 
     # Delete message
     message = polls[poll_to_dlt]['Message']
@@ -272,7 +272,6 @@ def dltpoll (update, context, poll_id):
 
     # Delete Data
     polls.pop(poll_to_dlt)
-    print(polls)
     collection.update(
         {'_id': user_id},
         {'$set': {'user_data.polls': polls}}
